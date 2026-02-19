@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
-import { Calendar, Clock, MapPin, User, Phone, Bus, Users, CreditCard, ChevronDown, Plus, Minus } from 'lucide-react';
-import { BUS_SERVICES, CITIES, ADMIN_WHATSAPP_NUMBER, BANK_DETAILS } from '../constants';
+import { Calendar, MapPin, User, Phone, Bus, CreditCard, ChevronDown, Plus, Minus } from 'lucide-react';
+import { BUS_SERVICES, CITIES, BANK_DETAILS } from '../constants';
 import { BookingFormData } from '../types';
 
 interface BookingFormProps {

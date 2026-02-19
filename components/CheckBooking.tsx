@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Download, RefreshCw, AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { Search, Download, RefreshCw, CheckCircle, Clock } from 'lucide-react';
 import { BookingResponse } from '../types';
 import { generateTicketPDF } from '../services/pdfGenerator';
 
