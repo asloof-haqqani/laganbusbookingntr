@@ -76,6 +76,44 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit }) => {
     });
   };
 
+  const openWhatsApp = () => {
+    const total = calculateTotal();
+    const seats = formData.maleSeats + formData.femaleSeats;
+    
+    // Format the booking message
+    const message = `Hi, I would like to confirm my bus booking:
+
+Name: ${formData.name}
+Phone: ${formData.phone}
+From: ${formData.from}
+To: ${formData.to}
+Date: ${formData.date}
+Bus: ${formData.bus}
+Male Seats: ${formData.maleSeats}
+Female Seats: ${formData.femaleSeats}
+Total Seats: ${seats}
+Total Cost: LKR ${total.toLocaleString()}
+
+Please confirm my booking.`;
+
+    // Format phone number: Replace 0 with 94 for Sri Lanka
+    const phoneNumber = formData.phone.startsWith('0') 
+      ? '94' + formData.phone.slice(1)
+      : formData.phone;
+
+    // Detect device and use appropriate WhatsApp link
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const encodedMessage = encodeURIComponent(message);
+    
+    if (isMobile) {
+      // Use WhatsApp app on mobile
+      window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
+    } else {
+      // Use WhatsApp Web on desktop
+      window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`, '_blank');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -102,7 +140,32 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit }) => {
       return;
     }
 
-    onSubmit(formData);
+    // Show confirmation dialog with WhatsApp option
+    Swal.fire({
+      title: 'Confirm Booking',
+      html: `<div class="text-left">
+        <p class="mb-4">Your booking details are ready to be sent to our admin via WhatsApp.</p>
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 text-sm">
+          <p><strong>From:</strong> ${formData.from}</p>
+          <p><strong>To:</strong> ${formData.to}</p>
+          <p><strong>Date:</strong> ${formData.date}</p>
+          <p><strong>Bus:</strong> ${formData.bus}</p>
+          <p><strong>Seats:</strong> ${formData.maleSeats + formData.femaleSeats}</p>
+          <p><strong>Total:</strong> LKR ${calculateTotal().toLocaleString()}</p>
+        </div>
+      </div>`,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: '✓ Send via WhatsApp',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#25D366',
+      customClass: { popup: 'rounded-3xl' }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        openWhatsApp();
+        onSubmit(formData);
+      }
+    });
   };
 
   return (
@@ -308,9 +371,12 @@ const BookingForm: React.FC<BookingFormProps> = ({ onSubmit }) => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 sm:flex-none px-10 py-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-lg shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-[0.98] w-full md:w-auto flex items-center justify-center gap-2"
+                    className="flex-1 sm:flex-none px-10 py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-lg shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 transition-all active:scale-[0.98] w-full md:w-auto flex items-center justify-center gap-2"
                   >
-                     Confirm Booking
+                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.272-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371 0-.57 0-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-5.031 1.378c-3.055 2.044-5.03 5.597-5.03 9.562 0 1.634.346 3.229 1.031 4.714l-.556 2.032 2.083-.541c1.386.754 2.943 1.15 4.555 1.15 5.502 0 9.987-4.486 9.987-9.989 0-2.668-1.032-5.18-2.906-7.054-1.873-1.874-4.366-2.906-7.007-2.906 0 0 0 0 0 0zm5.783 14.385c-.4 1.125-2.346 2.112-3.577 2.25-.933.1-1.9.048-3.154-.48-.652-.283-1.434-.69-2.207-1.212-3.314-2.18-5.475-5.529-5.475-9.202 0-6.009 4.882-10.891 10.891-10.891 2.896 0 5.612 1.127 7.656 3.171 2.043 2.044 3.17 4.76 3.17 7.656 0 6.009-4.882 10.892-10.891 10.892"/>
+                     </svg>
+                     <span>Confirm Booking</span>
                   </button>
               </div>
           </div>
